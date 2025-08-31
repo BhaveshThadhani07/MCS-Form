@@ -1,0 +1,179 @@
+
+[
+    {
+        "id": 1,
+        "question": "Why do you want to join the Tech Club?",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 150
+    },
+    {
+        "id": 2,
+        "question": "What can you add to the team? (e.g., skills, ideas, or enthusiasm)",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 150
+    },
+    {
+        "id": 3,
+        "question": "What do you enjoy the most about technology (games, apps, gadgets, coding, etc.) & what are your expectations about the future of technology?",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 200
+    },
+    {
+        "id": 4,
+        "question": "Write about any project, competition, or tech-related activity you have done. (It can be small, like making a poster, fixing something, or trying an app/tool.)",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 200
+    },
+    {
+        "id": 5,
+        "question": "What is one new skill you really want to learn this year and why?",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 100
+    },
+    {
+        "id": 6,
+        "question": "Name one technology people talk about a lot. Do you think it’s useful or overhyped? Why?",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 150
+    },
+    {
+        "id": 7,
+        "question": "Explain any tech thing you know in simple words (like Wi-Fi, app, robot, AI, etc.) so even a teacher who doesn’t know tech can understand.",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 200
+    },
+    {
+        "id": 8,
+        "question": "Think of one idea using technology that can help our school (e.g., save electricity, reduce waste, make learning fun). Write it briefly.",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 150
+    },
+    {
+        "id": 9,
+        "question": "Imagine you have one week for a small tech project. What are the first steps you’d take to get it ready, and then how would you actually do the work? Write the complete plan in brief.",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 250
+    },
+    {
+        "id": 10,
+        "question": "What does ‘innovation’ mean to you? Share a small example (can be from school, home, or daily life).",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 150
+    },
+    {
+        "id": 11,
+        "question": "How would you handle a situation where a teammate isn’t doing their part of the work?",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 150
+    },
+    {
+        "id": 12,
+        "question": "How do you manage your time between academics, tech projects, health, and other activities?",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 150
+    },
+    {
+        "id": 13,
+        "question": "Write 3 things you would put on a Tech Club website/app.",
+        "options": [],
+        "answer": "",
+        "type": "subjective",
+        "wordLimit": 100
+    },
+    {
+        "id": 14,
+        "question": "What is the best way to learn something new in technology?",
+        "options": [
+            "Read about it for weeks first.",
+            "Try to make a small project quickly.",
+            "Teach it to a friend.",
+            "Wait until you feel 100% ready."
+        ],
+        "answer": [],
+        "type": "mcq"
+    },
+    {
+        "id": 15,
+        "question": "How do we know if a school tech project is successful?",
+        "options": [
+            "It looks very fancy.",
+            "Students actually use it more than once.",
+            "It has many lines of code.",
+            "It solves one clear problem."
+        ],
+        "answer": [],
+        "type": "mcq"
+    },
+    {
+        "id": 16,
+        "question": "When you hear about a new technology, what should you do?",
+        "options": [
+            "Believe it’s useful because experts say so.",
+            "Think about possible problems it may cause.",
+            "Think how it can help in simple ways at school.",
+            "Use it immediately to look modern."
+        ],
+        "answer": [],
+        "type": "mcq"
+    },
+    {
+        "id": 17,
+        "question": "What is most important when making something for students?",
+        "options": [
+            "It looks cool to you.",
+            "Easy to use and clear.",
+            "First-time users can understand it quickly.",
+            "Add as many features as possible."
+        ],
+        "answer": [],
+        "type": "mcq"
+    },
+    {
+        "id": 18,
+        "question": "What makes a project useful beyond our school?",
+        "options": [
+            "It solves a problem many people also face.",
+            "It needs special things only our school has.",
+            "Others can copy or repeat it easily.",
+            "Only one student knows how it works."
+        ],
+        "answer": [],
+        "type": "mcq"
+    },
+    {
+        "id": 19,
+        "question": "Commitment: Hours per week you can give to club activities.",
+        "options": [
+            "1-2 hours",
+            "2-4 hours",
+            "4-6 hours",
+            "6+ hours"
+        ],
+        "answer": "",
+        "type": "single-choice"
+    }
+]
