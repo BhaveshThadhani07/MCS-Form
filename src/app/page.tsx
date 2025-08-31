@@ -23,6 +23,7 @@ export default function Home() {
   const [anomalyScore, setAnomalyScore] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [quizStartTime, setQuizStartTime] = useState<Date | null>(null);
   
 
   const { toast } = useToast();
@@ -143,6 +144,7 @@ export default function Home() {
   
   const handleStart = (details: UserDetails) => {
     setUserDetails(details);
+    setQuizStartTime(new Date());
     requestFullscreen();
     setQuizState("active");
     startTimer();
@@ -175,17 +177,24 @@ export default function Home() {
     setQuizState('active');
   };
 
-  const submitToGoogleSheets = useCallback(async (userDetails: UserDetails, answers: Answers, questions: Question[], anomalyScore: number, anomalyLogs: AnomalyLog[]) => {
+  const submitToGoogleSheets = useCallback(async (userDetails: UserDetails, answers: Answers, questions: Question[], anomalyScore: number, anomalyLogs: AnomalyLog[], quizStartTime: Date | null) => {
     try {
       // Prepare the data for Google Sheets
       const formData = new FormData();
+      
+      // Calculate submission duration
+      const submissionTime = new Date();
+      const submissionDuration = quizStartTime 
+        ? Math.round((submissionTime.getTime() - quizStartTime.getTime()) / 1000 / 60) // Duration in minutes
+        : 0;
       
       // Add user details and metadata (matching your Google Sheet columns)
       formData.append('fullName', userDetails.fullName);
       formData.append('email', userDetails.email);
       formData.append('class', userDetails.class);
       formData.append('anomalyScore', anomalyScore.toString());
-      formData.append('submissionTime', new Date().toISOString());
+      formData.append('submissionTime', submissionTime.toISOString());
+      formData.append('submissionDuration', submissionDuration.toString()); // Duration in minutes
       formData.append('anomalyLogs', JSON.stringify(anomalyLogs));
       
       // Add all 19 questions and answers as separate fields
@@ -237,7 +246,7 @@ export default function Home() {
     
     // Submit data to Google Sheets
     if (userDetails) {
-      await submitToGoogleSheets(userDetails, answers, questions, anomalyScore, anomalyLogs);
+      await submitToGoogleSheets(userDetails, answers, questions, anomalyScore, anomalyLogs, quizStartTime);
     }
     
     setQuizState('submitted');
@@ -245,7 +254,7 @@ export default function Home() {
     if (document.fullscreenElement) {
       document.exitFullscreen();
     }
-  }, [userDetails, answers, questions, anomalyScore, anomalyLogs, submitToGoogleSheets]);
+  }, [userDetails, answers, questions, anomalyScore, anomalyLogs, quizStartTime, submitToGoogleSheets]);
 
   const handleRestart = () => {
     setQuizState('idle');
@@ -255,6 +264,7 @@ export default function Home() {
     setAnomalyLogs([]);
     setAnomalyScore(0);
     setUserDetails(null);
+    setQuizStartTime(null);
   }
   
   const handleValidateName = useCallback(async (name: string) => {
