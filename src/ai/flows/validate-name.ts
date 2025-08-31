@@ -35,11 +35,13 @@ const prompt = ai.definePrompt({
   The name is: {{{name}}}
 
   Consider the following a non-exhaustive list of invalid names:
-  - Random characters (e.g., "asdfghjkl")
-  - Keyboard mashing (e.g., "qwert")
-  - Placeholder text (e.g., "Test User", "John Doe")
+  - Random characters (e.g., "aaa", "asdfghjkl", "riy98h3")
+  - Keyboard mashing (e.g., "qwert", "zxcvb")
+  - Placeholder text (e.g., "Test User", "John Doe", "User")
   - Offensive or inappropriate words
   - Single characters (unless it's a common initial)
+  - Names with random numbers mixed in (e.g., "John123", "abc456")
+  - Names that are clearly fake or made up
 
   If the name is invalid, provide a concise reason. If it seems valid, just confirm it.
   `,

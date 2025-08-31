@@ -15,6 +15,7 @@ import type { UserDetails } from '@/lib/types';
 interface StartScreenProps {
   onStart: (details: UserDetails) => void;
   onValidateName: (name: string) => Promise<true | string>;
+  onValidateEmail: (email: string) => Promise<true | string>;
 }
 
 const formSchema = z.object({
@@ -32,7 +33,7 @@ const InstructionItem: FC<{ icon: React.ReactNode; text: string }> = ({ icon, te
   </li>
 );
 
-export const StartScreen: FC<StartScreenProps> = ({ onStart, onValidateName }) => {
+export const StartScreen: FC<StartScreenProps> = ({ onStart, onValidateName, onValidateEmail }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,11 +43,20 @@ export const StartScreen: FC<StartScreenProps> = ({ onStart, onValidateName }) =
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const validationResult = await onValidateName(values.fullName);
-    if (typeof validationResult === 'string') {
-        form.setError('fullName', { type: 'manual', message: validationResult });
+    // Validate name
+    const nameValidationResult = await onValidateName(values.fullName);
+    if (typeof nameValidationResult === 'string') {
+        form.setError('fullName', { type: 'manual', message: nameValidationResult });
         return;
     }
+    
+    // Validate email
+    const emailValidationResult = await onValidateEmail(values.email);
+    if (typeof emailValidationResult === 'string') {
+        form.setError('email', { type: 'manual', message: emailValidationResult });
+        return;
+    }
+    
     onStart(values);
   }
 

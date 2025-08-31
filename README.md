@@ -6,9 +6,11 @@ Welcome to MCS-Quiz, a secure online examination platform designed to provide a 
 
 - **Secure Examination Environment**: Implements a `SecurityManager` to detect and prevent cheating by monitoring user activity, such as leaving the exam tab or using multiple displays.
 - **AI-Powered Behavioral Analysis**: Utilizes AI to analyze user behavior during the exam, providing insights into potential cheating patterns and generating a risk assessment.
+- **AI-Powered Input Validation**: Uses Google AI (Gemini) to detect fake names and invalid email addresses, preventing users from entering random characters like "aaa", "riy98h3", or "qwert".
 - **Dynamic Quiz System**: Fetches questions from a JSON file, allowing for easy updates and management of the quiz content.
 - **User-Friendly Interface**: Built with modern UI components to provide a smooth and intuitive user experience for both students and administrators.
 - **Detailed Results and Analysis**: Offers a comprehensive results screen that includes a summary of the user's answers, along with a behavioral analysis report.
+- **Google Sheets Integration**: Automatically submits all form data including user details, answers, anomaly scores, and submission duration to Google Sheets.
 
 ## Getting Started
 
@@ -21,9 +23,15 @@ To get started with the MCS-Quiz platform, follow these steps:
    npm install
    ```
 
-2. **Configuration**: The quiz questions can be customized by editing the `public/questions.json` file.
+2. **AI Validation Setup**: To enable AI-powered name and email validation, you need to set up Google AI API:
+   - Get a Google AI API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Create a `.env.local` file in the root directory
+   - Add your API key: `GOOGLE_AI_API_KEY=AIzaSyB9z9OavhvtrimmrCuqK9GFIxuLJay3-H0`
+   - The AI will detect fake names like "aaa", "riy98h3", "qwert" and invalid emails
 
-3. **Running the Application**: Start the development server.
+3. **Configuration**: The quiz questions can be customized by editing the `public/questions.json` file.
+
+4. **Running the Application**: Start the development server.
    ```bash
    npm run dev
    ```

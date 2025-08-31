@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Question, AnomalyLog, QuizState, Answers, UserDetails, AnomalyCounts, AnomalyType } from "@/lib/types";
-import { getRiskAnalysis, validateName } from "@/app/actions";
+import { getRiskAnalysis, validateName, validateEmail } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 
 import { StartScreen } from "@/components/quiz/StartScreen";
@@ -269,8 +269,19 @@ export default function Home() {
   
   const handleValidateName = useCallback(async (name: string) => {
     const result = await validateName({ name });
-    if (result.success && !result.data.isValid) {
+    if (result.success && result.data && !result.data.isValid) {
         return result.data.reason || "The provided name appears to be invalid.";
+    }
+    if (!result.success) {
+      return "AI validation failed. Please try again."
+    }
+    return true;
+  }, []);
+
+  const handleValidateEmail = useCallback(async (email: string) => {
+    const result = await validateEmail({ email });
+    if (result.success && result.data && !result.data.isValid) {
+        return result.data.reason || "The provided email appears to be invalid.";
     }
     if (!result.success) {
       return "AI validation failed. Please try again."
@@ -291,7 +302,7 @@ export default function Home() {
     
     switch (quizState) {
       case "idle":
-        return <StartScreen onStart={handleStart} onValidateName={handleValidateName} />;
+        return <StartScreen onStart={handleStart} onValidateName={handleValidateName} onValidateEmail={handleValidateEmail} />;
       case "active":
         return (
           <QuizScreen

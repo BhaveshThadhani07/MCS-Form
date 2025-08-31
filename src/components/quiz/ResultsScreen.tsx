@@ -50,7 +50,7 @@ export const ResultsScreen: FC<ResultsScreenProps> = ({
     
     const timer = setTimeout(() => {
         window.location.href = 'https://techbybhavesh.com/';
-    }, 60000);
+    }, 20000);
 
     return () => clearTimeout(timer);
   }, [getRiskAnalysis, anomalyLogs, anomalyScore]);
