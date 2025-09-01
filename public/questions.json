@@ -167,13 +167,9 @@
     {
         "id": 19,
         "question": "Commitment: Hours per week you can give to club activities.",
-        "options": [
-            "1-2 hours",
-            "2-4 hours",
-            "4-6 hours",
-            "6+ hours"
-        ],
+        "options": [],
         "answer": "",
-        "type": "single-choice"
+        "type": "subjective",
+        "wordLimit": 30
     }
 ]
