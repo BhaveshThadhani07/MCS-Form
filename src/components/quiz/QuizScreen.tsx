@@ -19,8 +19,9 @@ interface QuizScreenProps {
   onNext: () => void;
   onPrev: () => void;
   onReview: () => void;
-  timer: number;
+  questionTimer: number;
   anomalyScore: number;
+  canGoBack: boolean;
 }
 
 const formatTime = (seconds: number) => {
@@ -44,8 +45,9 @@ export const QuizScreen: FC<QuizScreenProps> = ({
   onNext,
   onPrev,
   onReview,
-  timer,
+  questionTimer,
   anomalyScore,
+  canGoBack,
 }) => {
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
   const currentAnswer = answers[question.id];
@@ -124,11 +126,21 @@ export const QuizScreen: FC<QuizScreenProps> = ({
                 <span className={getScoreColor(anomalyScore)}>{anomalyScore}/100</span>
             </div>
             <div className="flex shrink-0 items-center gap-2 rounded-md border bg-card px-3 py-1.5 text-sm font-medium tabular-nums">
-                <Timer className="h-4 w-4 text-primary" />
-                <span>{formatTime(timer)}</span>
+                <Timer className="h-4 w-4 text-orange-500" />
+                <span className={questionTimer <= 30 ? 'text-red-500 font-bold' : 'text-orange-500'}>
+                  {formatTime(questionTimer)}
+                </span>
             </div>
           </div>
         </div>
+
+        {questionTimer <= 30 && questionTimer > 0 && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-center">
+            <p className="text-sm font-medium text-red-800">
+              ⚠️ Less than 30 seconds remaining for this question!
+            </p>
+          </div>
+        )}
 
         <Card className="animate-fade-in shadow-lg" key={question.id}>
           <CardHeader>
@@ -139,13 +151,13 @@ export const QuizScreen: FC<QuizScreenProps> = ({
             {renderQuestionType()}
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={onPrev} disabled={currentIndex === 0}>
+            <Button variant="outline" onClick={onPrev} disabled={!canGoBack}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               Previous
             </Button>
             {currentIndex === totalQuestions - 1 ? (
-              <Button onClick={onReview} variant="secondary">
-                Review Answers
+              <Button onClick={onNext} variant="secondary">
+                Submit All Answers
               </Button>
             ) : (
               <Button onClick={onNext}>

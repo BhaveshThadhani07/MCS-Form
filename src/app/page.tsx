@@ -5,29 +5,138 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { Question, AnomalyLog, QuizState, Answers, UserDetails, AnomalyCounts, AnomalyType } from "@/lib/types";
 import { getRiskAnalysis, validateName, validateEmail } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
+import { useQuestionTimer } from "@/hooks/use-question-timer";
 
 import { StartScreen } from "@/components/quiz/StartScreen";
 import { QuizScreen } from "@/components/quiz/QuizScreen";
 import { ReviewScreen } from "@/components/quiz/ReviewScreen";
 import { ResultsScreen } from "@/components/quiz/ResultsScreen";
 
-const QUIZ_DURATION = 3000; // 50 minutes
+const QUESTION_DURATION_SUBJECTIVE = 120; // 2 minutes for subjective questions
+const QUESTION_DURATION_MCQ = 60; // 1 minute for MCQ questions
 
 export default function Home() {
   const [quizState, setQuizState] = useState<QuizState>("idle");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Answers>({});
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [timer, setTimer] = useState(QUIZ_DURATION);
   const [anomalyLogs, setAnomalyLogs] = useState<AnomalyLog[]>([]);
   const [anomalyScore, setAnomalyScore] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [quizStartTime, setQuizStartTime] = useState<Date | null>(null);
+  const [visitedQuestions, setVisitedQuestions] = useState<Set<number>>(new Set());
   
 
   const { toast } = useToast();
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get timer duration based on question type
+  const getQuestionDuration = useCallback((question: Question) => {
+    return question.type === 'mcq' ? QUESTION_DURATION_MCQ : QUESTION_DURATION_SUBJECTIVE;
+  }, []);
+
+  const submitToGoogleSheets = useCallback(async (userDetails: UserDetails, answers: Answers, questions: Question[], anomalyScore: number, anomalyLogs: AnomalyLog[], quizStartTime: Date | null) => {
+    try {
+      // Prepare the data for Google Sheets
+      const formData = new FormData();
+      
+      // Calculate submission duration
+      const submissionTime = new Date();
+      const submissionDuration = quizStartTime 
+        ? Math.round((submissionTime.getTime() - quizStartTime.getTime()) / 1000 / 60) // Duration in minutes
+        : 0;
+      
+      // Add user details and metadata (matching your Google Sheet columns)
+      formData.append('fullName', userDetails.fullName);
+      formData.append('email', userDetails.email);
+      formData.append('class', userDetails.class);
+      formData.append('anomalyScore', anomalyScore.toString());
+      formData.append('submissionTime', submissionTime.toISOString());
+      formData.append('submissionDuration', submissionDuration.toString()); // Duration in minutes
+      formData.append('anomalyLogs', JSON.stringify(anomalyLogs));
+      
+      // Add all 19 questions and answers as separate fields
+      questions.forEach((question) => {
+        const answer = answers[question.id];
+        let answerText = 'No answer provided';
+        
+        if (answer) {
+          if (Array.isArray(answer)) {
+            answerText = answer.join(', ');
+          } else {
+            answerText = answer;
+          }
+        }
+        
+        // Create field names that match your Google Sheet columns
+        formData.append(`q${question.id}`, answerText);
+      });
+      
+      // Submit to Google Sheets
+      const scriptURL = 'https://script.google.com/macros/s/AKfycbx2ly7xcLlloR9fW9KfERYBzAokrv3GgzAMw5aUGEFUKBYcH62OvsTGs4hhNtjsMbCJ/exec';
+      
+      const response = await fetch(scriptURL, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (response.ok) {
+        console.log('Success! Data submitted to Google Sheets');
+        toast({
+          title: "Submission Successful",
+          description: "Your answers have been submitted successfully.",
+        });
+      } else {
+        throw new Error('Failed to submit to Google Sheets');
+      }
+    } catch (error) {
+      console.error('Error submitting to Google Sheets:', error);
+      toast({
+        variant: "destructive",
+        title: "Submission Error",
+        description: "Failed to submit your answers. Please try again.",
+      });
+    }
+  }, [toast]);
+
+  const handleSubmit = useCallback(async () => {
+    // Submit data to Google Sheets
+    if (userDetails) {
+      await submitToGoogleSheets(userDetails, answers, questions, anomalyScore, anomalyLogs, quizStartTime);
+    }
+    
+    setQuizState('submitted');
+    
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }, [userDetails, answers, questions, anomalyScore, anomalyLogs, quizStartTime, submitToGoogleSheets]);
+
+  // Per-question timer
+  const handleQuestionTimeout = useCallback(() => {
+    toast({
+      variant: "destructive",
+      title: "Time's Up!",
+      description: "Time limit for this question has expired. Moving to next question.",
+    });
+    
+    // Auto-advance to next question
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      // Skip review and go directly to submission
+      handleSubmit();
+    }
+  }, [toast, currentIndex, questions.length, handleSubmit]);
+
+  const currentQuestion = questions[currentIndex];
+  const questionDuration = currentQuestion ? getQuestionDuration(currentQuestion) : QUESTION_DURATION_SUBJECTIVE;
+  
+  const questionTimer = useQuestionTimer({
+    duration: questionDuration,
+    onTimeout: handleQuestionTimeout,
+    isActive: quizState === 'active'
+  });
 
   useEffect(() => {
     fetch("/questions.json")
@@ -126,28 +235,13 @@ export default function Home() {
     };
   }, [handleFullscreenChange, handleVisibilityChange, handleBlur]);
 
-  const startTimer = useCallback(() => {
-    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    setTimer(QUIZ_DURATION);
-    timerIntervalRef.current = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(timerIntervalRef.current!);
-          setQuizState('review');
-          toast({ title: "Time's Up!", description: "Please review and submit your answers." });
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }, [toast]);
+
   
   const handleStart = (details: UserDetails) => {
     setUserDetails(details);
     setQuizStartTime(new Date());
     requestFullscreen();
     setQuizState("active");
-    startTimer();
   };
   
   const handleAnswer = (questionId: number, answer: string | string[]) => {
@@ -155,116 +249,42 @@ export default function Home() {
   };
 
   const handleNext = () => {
+    // Mark current question as visited
+    setVisitedQuestions(prev => new Set([...prev, currentIndex]));
+    
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
+      questionTimer.resetTimer();
     } else {
-      setQuizState('review');
+      // Skip review and go directly to submission
+      handleSubmit();
     }
   };
 
   const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-    }
+    // Disabled - users cannot go back to previous questions
+    return;
   };
 
   const handleReview = () => {
-    setQuizState('review');
+    // Review functionality removed - go directly to submission
+    handleSubmit();
   };
   
   const handleEdit = (questionIndex: number) => {
-    setCurrentIndex(questionIndex);
-    setQuizState('active');
+    // Edit functionality removed - users cannot go back to previous questions
+    return;
   };
-
-  const submitToGoogleSheets = useCallback(async (userDetails: UserDetails, answers: Answers, questions: Question[], anomalyScore: number, anomalyLogs: AnomalyLog[], quizStartTime: Date | null) => {
-    try {
-      // Prepare the data for Google Sheets
-      const formData = new FormData();
-      
-      // Calculate submission duration
-      const submissionTime = new Date();
-      const submissionDuration = quizStartTime 
-        ? Math.round((submissionTime.getTime() - quizStartTime.getTime()) / 1000 / 60) // Duration in minutes
-        : 0;
-      
-      // Add user details and metadata (matching your Google Sheet columns)
-      formData.append('fullName', userDetails.fullName);
-      formData.append('email', userDetails.email);
-      formData.append('class', userDetails.class);
-      formData.append('anomalyScore', anomalyScore.toString());
-      formData.append('submissionTime', submissionTime.toISOString());
-      formData.append('submissionDuration', submissionDuration.toString()); // Duration in minutes
-      formData.append('anomalyLogs', JSON.stringify(anomalyLogs));
-      
-      // Add all 19 questions and answers as separate fields
-      questions.forEach((question) => {
-        const answer = answers[question.id];
-        let answerText = 'No answer provided';
-        
-        if (answer) {
-          if (Array.isArray(answer)) {
-            answerText = answer.join(', ');
-          } else {
-            answerText = answer;
-          }
-        }
-        
-        // Create field names that match your Google Sheet columns
-        formData.append(`q${question.id}`, answerText);
-      });
-      
-      // Submit to Google Sheets
-      const scriptURL = 'https://script.google.com/macros/s/AKfycbx2ly7xcLlloR9fW9KfERYBzAokrv3GgzAMw5aUGEFUKBYcH62OvsTGs4hhNtjsMbCJ/exec';
-      
-      const response = await fetch(scriptURL, {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (response.ok) {
-        console.log('Success! Data submitted to Google Sheets');
-        toast({
-          title: "Submission Successful",
-          description: "Your answers have been submitted successfully.",
-        });
-      } else {
-        throw new Error('Failed to submit to Google Sheets');
-      }
-    } catch (error) {
-      console.error('Error submitting to Google Sheets:', error);
-      toast({
-        variant: "destructive",
-        title: "Submission Error",
-        description: "Failed to submit your answers. Please try again.",
-      });
-    }
-  }, [toast]);
-
-  const handleSubmit = useCallback(async () => {
-    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    
-    // Submit data to Google Sheets
-    if (userDetails) {
-      await submitToGoogleSheets(userDetails, answers, questions, anomalyScore, anomalyLogs, quizStartTime);
-    }
-    
-    setQuizState('submitted');
-    
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    }
-  }, [userDetails, answers, questions, anomalyScore, anomalyLogs, quizStartTime, submitToGoogleSheets]);
 
   const handleRestart = () => {
     setQuizState('idle');
     setAnswers({});
     setCurrentIndex(0);
-    setTimer(QUIZ_DURATION);
     setAnomalyLogs([]);
     setAnomalyScore(0);
     setUserDetails(null);
     setQuizStartTime(null);
+    setVisitedQuestions(new Set());
   }
   
   const handleValidateName = useCallback(async (name: string) => {
@@ -314,12 +334,11 @@ export default function Home() {
             onNext={handleNext}
             onPrev={handlePrev}
             onReview={handleReview}
-            timer={timer}
+            questionTimer={questionTimer.timeLeft}
             anomalyScore={anomalyScore}
+            canGoBack={false}
           />
         );
-      case "review":
-        return <ReviewScreen questions={questions} answers={answers} onEdit={handleEdit} onSubmit={handleSubmit} />;
       case "submitted":
         return (
           <ResultsScreen 

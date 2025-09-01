@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShieldCheck, EyeOff, Keyboard, AlertTriangle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, EyeOff, Keyboard, AlertTriangle, ArrowRight, Timer } from 'lucide-react';
 import type { UserDetails } from '@/lib/types';
 
 interface StartScreenProps {
@@ -143,6 +143,8 @@ export const StartScreen: FC<StartScreenProps> = ({ onStart, onValidateName, onV
                   <InstructionItem icon={<EyeOff size={20} />} text="Switching tabs or minimizing the window is prohibited and will be logged." />
                   <InstructionItem icon={<Keyboard size={20} />} text="Right-click and keyboard shortcuts (like Ctrl, Alt) are disabled." />
                   <InstructionItem icon={<AlertTriangle size={20} />} text="All suspicious activities are monitored and will affect your score." />
+                  <InstructionItem icon={<Timer size={20} />} text="You have 2 minutes for text questions, 1 minute for multiple choice. Time will auto-advance when expired." />
+                  <InstructionItem icon={<AlertTriangle size={20} />} text="You cannot go back to previous questions once you move forward." />
                 </ul>
               </div>
 
