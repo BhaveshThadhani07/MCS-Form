@@ -1,6 +1,6 @@
-# MCS-Quiz
+# MCS-Form
 
-Welcome to MCS-Quiz, a secure online examination platform designed to provide a safe and reliable testing environment. This project is built with Next.js and integrates advanced security features to ensure the integrity of the examination process.
+Welcome to MCS-Form, a secure online examination platform designed to provide a safe and reliable testing environment. This project is built with Next.js and integrates advanced security features to ensure the integrity of the examination process.
 
 ## Features
 
@@ -14,12 +14,12 @@ Welcome to MCS-Quiz, a secure online examination platform designed to provide a 
 
 ## Getting Started
 
-To get started with the MCS-Quiz platform, follow these steps:
+To get started with the MCS-Form platform, follow these steps:
 
 1. **Installation**: Clone the repository and install the dependencies.
    ```bash
    git clone https://github.com/BhaveshThadhani07/mcs-form.git
-   cd mcs-quiz
+   cd MCS-Form
    npm install
    ```
 

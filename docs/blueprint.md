@@ -1,4 +1,4 @@
-# **App Name**: MCS-Quiz
+# **App Name**: MCS-Form
 
 ## Core Features:
 

@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { SecurityManager } from '@/components/quiz/SecurityManager';
 
 export const metadata: Metadata = {
-  title: 'MCS-Quiz',
+  title: 'MCS-Form',
   description: 'A secure online examination platform.',
 };
 
