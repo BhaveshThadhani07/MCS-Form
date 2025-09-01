@@ -26,7 +26,7 @@ To get started with the MCS-Form platform, follow these steps:
 2. **AI Validation Setup**: To enable AI-powered name and email validation, you need to set up Google AI API:
    - Get a Google AI API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
    - Create a `.env.local` file in the root directory
-   - Add your API key: `GOOGLE_AI_API_KEY=AIzaSyB9z9OavhvtrimmrCuqK9GFIxuLJay3-H0`
+   - Add your API key: `GOOGLE_AI_API_KEY=add_your_api_key`
    - The AI will detect fake names like "aaa", "riy98h3", "qwert" and invalid emails
 
 3. **Configuration**: The quiz questions can be customized by editing the `public/questions.json` file.
